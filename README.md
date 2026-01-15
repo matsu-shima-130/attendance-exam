@@ -7,8 +7,8 @@
 1.  リポジトリを取得
 
     ```bash
-    git clone https://github.com/matsu-shima-130/contact-form-exam.git
-    cd contact-form-exam
+    git clone git@github.com:matsu-shima-130/attendance-exam.git
+    cd attendance-exam
     ```
 
 2.  コンテナを作成・起動
@@ -46,13 +46,19 @@
    DB_PASSWORD=laravel_pass
    ```
 
-4. マイグレーション
+4. Fortify（初回のみ）
+
+   ```bash
+   php artisan vendor:publish --provider="Laravel\\Fortify\\FortifyServiceProvider"
+   ```
+
+5. マイグレーション
 
    ```bash
    php artisan migrate
    ```
 
-5. シーディング
+6. シーディング
 
    ```bash
    php artisan db:seed
@@ -64,6 +70,10 @@
 - Laravel 8.83.8
 - MySQL 8.0.26
 - Nginx 1.21.1
+
+## 認証
+
+- Laravel Fortify
 
 ## ER 図
 

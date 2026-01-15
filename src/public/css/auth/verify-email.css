@@ -1,0 +1,46 @@
+.verify {
+    padding: 90px 16px;
+}
+
+.verify__inner {
+    text-align: center;
+}
+
+.verify__message {
+    margin: 0 0 30px;
+    font-size: 18px;
+    line-height: 1.8;
+    font-weight: 600;
+}
+
+.verify__button {
+    display: inline-block;
+    padding: 10px 28px;
+    border: 1px solid #999;
+    background: #d9d9d9;
+    border-radius: 6px;
+    color: #000;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.verify__resend-form {
+    margin-top: 24px;
+}
+
+.verify__resend {
+    background: transparent;
+    border: none;
+    padding: 10px;
+    color: #70b0e2;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.verify__status {
+    margin-top: 16px;
+    font-size: 12px;
+}

@@ -1,0 +1,90 @@
+/* ===== 共通 ===== */
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #fff;
+    color: #000;
+}
+
+.main {
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 60px var(--side-pad);
+}
+
+/* ===== PC幅(1400-1540px)でも崩れないための共通設定 ===== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* 中央寄せの最大幅 */
+:root {
+    --content-max: 1230px;
+    --side-pad: clamp(24px, 3vw, 60px);
+}
+
+/* ===== ヘッダー ===== */
+.header {
+    background: #000;
+}
+
+.header__inner {
+    max-width: var(--content-max);
+    margin: 0 auto;
+    padding: 18px var(--side-pad);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header__logo img {
+    height: 28px;
+    width: auto;
+    display: block;
+}
+
+/* ログイン後メニュー */
+.header__nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.header__link {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.header__link:hover {
+    opacity: 0.8;
+}
+
+.header__logout {
+    margin: 0;
+}
+
+.header__button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.header__button:hover {
+    opacity: 0.8;
+}
+
+
+

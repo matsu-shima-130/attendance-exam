@@ -1,0 +1,103 @@
+body {
+    background: #f2f2f2;
+}
+
+.main {
+    background: #f2f2f2;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+}
+
+.attendance {
+    background: #f2f2f2;
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 120px 16px 40px;
+}
+
+.attendance__inner {
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+}
+
+.attendance__badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: #d9d9d9;
+    color: #333;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0 0 18px;
+}
+
+.attendance__date {
+    margin: 0 0 10px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #000;
+}
+
+.attendance__time {
+    margin: 0 0 40px;
+    font-size: clamp(48px, 8vw, 72px);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #000;
+}
+
+.attendance__actions {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.attendance__actions--two {
+    gap: 32px;
+}
+
+.btn {
+    min-width: 180px;
+    height: 50px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.btn--primary {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+}
+
+.btn--secondary {
+    background: #fff;
+    color: #000;
+    border-color: #e5e5e5;
+}
+
+.attendance__done {
+    margin: 10px 0 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+}
+
+/* スマホでボタンが潰れないように */
+@media (max-width: 480px) {
+    .attendance__actions {
+        flex-direction: column;
+        gap: 14px;
+        align-items: center;
+    }
+
+    .btn {
+        width: 220px;
+    }
+}

@@ -1,0 +1,178 @@
+body {
+    background: #f2f2f2;
+}
+
+.main {
+    background: #f2f2f2;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+}
+
+.attendance-detail {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    justify-content: center;
+    padding: 80px 16px 40px;
+}
+
+.attendance-detail__inner {
+    width: 100%;
+    max-width: 760px;
+}
+
+.attendance-detail__title {
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 26px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.attendance-detail__title-bar {
+    width: 4px;
+    height: 22px;
+    background: #000;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.detail-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row--note {
+    align-items: start;
+}
+
+.detail-label {
+    color: #737373;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.detail-value {
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.detail-value--center {
+    text-align: center;
+}
+
+.detail-value--date {
+    display: flex;
+    justify-content: center;
+    gap: 120px;
+}
+
+.detail-date__year,
+.detail-date__md {
+    font-weight: 700;
+}
+
+.time-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.time-input {
+    width: 80px;
+    height: 26px;
+    border: 1px solid #e6e6e6;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #000;
+    background: #fff;
+}
+
+.time-tilde {
+    color: #000;
+    font-weight: 700;
+}
+
+.note-textarea {
+    width: 360px;
+    height: 70px;
+    border: 1px solid #e6e6e6;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #000;
+    resize: none;
+    display: block;
+    margin: 0 auto;
+    background: #fff;
+}
+
+.detail-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+.detail-button {
+    width: 120px;
+    height: 38px;
+    border-radius: 6px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #000;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.detail-message {
+    margin: 14px 0 0;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: #ff0000;
+}
+
+.detail-button--approved {
+    background: #696969;
+    cursor: not-allowed;
+}
+
+
+/* スマホ */
+@media (max-width: 640px) {
+    .detail-row {
+        grid-template-columns: 120px 1fr;
+        padding: 16px 16px;
+    }
+
+    .detail-value--date {
+        gap: 60px;
+    }
+
+    .note-textarea {
+        width: 100%;
+        max-width: 360px;
+    }
+}
+
