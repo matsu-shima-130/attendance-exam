@@ -11,7 +11,7 @@ use App\Http\Controllers\AdminStaffController;
 use App\Http\Controllers\StampCorrectionRequestController;
 
 Route::get('/', function () {
-    return view('login');
+    return redirect('login');
 });
 
 // 一般ユーザー（ゲストのみ）

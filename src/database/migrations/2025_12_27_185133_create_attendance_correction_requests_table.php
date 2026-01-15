@@ -23,7 +23,7 @@ class CreateAttendanceCorrectionRequestsTable extends Migration
 
             $table->timestamps();
 
-            $table->foreign('approved_by')->references('id')->on('admins')->nullOnDelete();
+            $table->foreign('approved_by')->references('id')->on('admins')->restrictOnDelete();
         });
     }
 

@@ -27,7 +27,6 @@ class AdminAuthController extends Controller
 
         $request->session()->regenerate();
 
-        // ひとまず仮（あとで管理者の勤怠一覧に差し替え予定）
         return redirect('/admin/attendance/list');
     }
 
@@ -35,8 +34,7 @@ class AdminAuthController extends Controller
     {
         Auth::guard('admin')->logout();
 
-        // セッションIDを更新（セキュリティ対策）
-        $request->session()->regenerate();
+        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/admin/login');

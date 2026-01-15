@@ -21,7 +21,7 @@ class AttendanceCorrectionRequestBreak extends Model
         'requested_break_out_at' => 'datetime',
     ];
 
-    public function correctionRequest()
+    public function attendanceCorrectionRequest()
     {
         return $this->belongsTo(AttendanceCorrectionRequest::class, 'attendance_correction_request_id');
     }

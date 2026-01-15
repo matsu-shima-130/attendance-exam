@@ -33,7 +33,7 @@ class AttendanceCorrectionRequest extends Model
 
     public function breaks()
     {
-        return $this->hasMany(AttendanceCorrectionRequestBreak::class);
+        return $this->hasMany(AttendanceCorrectionRequestBreak::class, 'attendance_correction_request_id');
     }
 
     public function user()

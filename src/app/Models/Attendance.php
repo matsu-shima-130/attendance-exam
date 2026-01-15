@@ -26,7 +26,7 @@ class Attendance extends Model
 
     public function breaks()
     {
-        return $this->hasMany(BreakTime::class);
+        return $this->hasMany(BreakTime::class, 'attendance_id');
     }
 
     public function user()

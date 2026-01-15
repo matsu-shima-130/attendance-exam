@@ -192,7 +192,7 @@ class StampCorrectionRequestController extends Controller
     {
         // すでに承認済みなら何もしない
         if ((int)$attendanceCorrectionRequest->status === 1) {
-            return redirect()->route('stamp_correction_request.index', ['tab' => 'approved']);
+            return redirect()->route('stamp_correction_request.list', ['tab' => 'approved']);
         }
 
         $validated = $request->validate([

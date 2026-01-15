@@ -71,33 +71,29 @@ class AttendanceCorrectionStoreRequest extends FormRequest
     public function messages(): array
     {
         return [
+            // 出勤・退勤
             'requested_clock_in_at.required' => '出勤時間を入力してください',
-            'requested_clock_in_at.date_format' => '出勤時間は「HH:MM」形式で入力してください',
-
             'requested_clock_out_at.required' => '退勤時間を入力してください',
-            'requested_clock_out_at.date_format' => '退勤時間は「HH:MM」形式で入力してください',
-            'requested_clock_out_at.after_or_equal' => '退勤時間は出勤時間以降の時刻にしてください',
+            'requested_clock_out_at.after_or_equal' => '出勤時間もしくは退勤時間が不適切な値です',
 
-            'break1_in.date_format' => '休憩開始時間は「HH:MM」形式で入力してください',
-            'break1_out.date_format' => '休憩終了時間は「HH:MM」形式で入力してください',
+            // 休憩1
             'break1_in.required_with' => '休憩開始時間を入力してください',
             'break1_out.required_with' => '休憩終了時間を入力してください',
-            'break1_in.after_or_equal' => '休憩開始時間は出勤時間以降の時刻にしてください',
-            'break1_in.before_or_equal' => '休憩開始時間は退勤時間以前の時刻にしてください',
-            'break1_out.after_or_equal' => '休憩終了時間は休憩開始時間以降の時刻にしてください',
-            'break1_out.before_or_equal' => '休憩終了時間は退勤時間以前の時刻にしてください',
+            'break1_in.after_or_equal' => '休憩時間が不適切な値です',
+            'break1_in.before_or_equal' => '休憩時間が不適切な値です',
+            'break1_out.before_or_equal' => '休憩時間もしくは退勤時間が不適切な値です',
+            'break1_out.after_or_equal' => '休憩時間もしくは退勤時間が不適切な値です',
 
-            'break2_in.date_format' => '休憩2開始時間は「HH:MM」形式で入力してください',
-            'break2_out.date_format' => '休憩2終了時間は「HH:MM」形式で入力してください',
-            'break2_in.required_with' => '休憩2開始時間を入力してください',
-            'break2_out.required_with' => '休憩2終了時間を入力してください',
-            'break2_in.after_or_equal' => '休憩2開始時間は出勤時間以降の時刻にしてください',
-            'break2_in.before_or_equal' => '休憩2開始時間は退勤時間以前の時刻にしてください',
-            'break2_out.after_or_equal' => '休憩2終了時間は休憩2開始時間以降の時刻にしてください',
-            'break2_out.before_or_equal' => '休憩2終了時間は退勤時間以前の時刻にしてください',
+            // 休憩2
+            'break2_in.required_with' => '開始時間を入力してください',
+            'break2_out.required_with' => '終了時間を入力してください',
+            'break2_in.after_or_equal' => '休憩時間が不適切な値です',
+            'break2_in.before_or_equal' => '休憩時間が不適切な値です',
+            'break2_out.before_or_equal' => '休憩時間もしくは退勤時間が不適切な値です',
+            'break2_out.after_or_equal' => '休憩時間もしくは退勤時間が不適切な値です',
 
-            'requested_note.required' => '備考を入力してください',
-            'requested_note.string' => '備考は文字で入力してください',
+            // 備考
+            'requested_note.required' => '備考を記入してください',
         ];
     }
 }

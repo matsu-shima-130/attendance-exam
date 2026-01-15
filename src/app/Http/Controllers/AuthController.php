@@ -29,8 +29,8 @@ class AuthController extends Controller
         // 認証メール送信
         $user->sendEmailVerificationNotification();
 
-        // FN005: 会員登録直後、打刻画面に遷移
-        return redirect('/attendance');
+        // メール認証誘導画面へ
+        return redirect()->route('verification.notice');
     }
 
     public function showLogin()

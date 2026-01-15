@@ -46,19 +46,29 @@
    DB_PASSWORD=laravel_pass
    ```
 
-4. Fortify（初回のみ）
+4. メール認証（MailHog）設定（.env）
+
+   ```bash
+   MAIL_MAILER=smtp
+   MAIL_HOST=mailhog
+   MAIL_PORT=1025
+   MAIL_FROM_ADDRESS=no-reply@example.com
+   MAIL_FROM_NAME="Attendance App"
+   ```
+
+5. Fortify（初回のみ）
 
    ```bash
    php artisan vendor:publish --provider="Laravel\\Fortify\\FortifyServiceProvider"
    ```
 
-5. マイグレーション
+6. マイグレーション
 
    ```bash
    php artisan migrate
    ```
 
-6. シーディング
+7. シーディング
 
    ```bash
    php artisan db:seed
@@ -75,9 +85,16 @@
 
 - Laravel Fortify
 
-## ER 図
-
 ## URL
 
 - 開発環境: http://localhost/
 - phpMyAdmin: http://localhost:8080/
+
+## 管理者アカウント（Seeder で作成）
+
+- email: admin@example.com
+- password: password123
+
+## ER 図
+
+![ER図](docs/er.png)

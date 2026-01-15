@@ -146,7 +146,15 @@ class AttendanceController extends Controller
             }
 
             if ($action === 'clock_out') {
-                // 退勤は1日1回だけ
+                $openBreak = BreakTime::where('attendance_id', $attendance->id)
+                    ->whereNull('break_out_at')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($openBreak) {
+                    return;
+                }
+
                 $attendance->update([
                     'clock_out_at' => $now,
                     'status' => 3,
