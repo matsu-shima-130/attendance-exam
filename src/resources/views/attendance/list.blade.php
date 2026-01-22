@@ -43,7 +43,9 @@
                                 <td>{{ $row['date'] }}</td>
                                 <td>{{ $row['clock_in'] }}</td>
                                 <td>{{ $row['clock_out'] }}</td>
-                                <td>{{ $row['break_total'] }}</td>
+                                <td title="{{ $row['break_times_text'] }}">
+                                    {{ $row['break_total'] }}
+                                </td>
                                 <td>{{ $row['work_total'] }}</td>
                                 <td>
                                     @if($row['detail_id'])

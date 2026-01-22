@@ -8,7 +8,7 @@ class FortifyServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Fortifyが自動でルートを登録するのを止める（方針A）
+        // Fortifyが自動でルートを登録するのを止める
         \Laravel\Fortify\Fortify::ignoreRoutes();
     }
 

@@ -197,6 +197,7 @@ class AttendanceController extends Controller
             $clockIn = '';
             $clockOut = '';
             $breakTotal = '';
+            $breakTimesText = '';
             $workTotal = '';
             $detailId = null;
 
@@ -212,12 +213,22 @@ class AttendanceController extends Controller
 
                 // 休憩合計（分）
                 $breakMinutes = 0;
+                $breakTimes = []; // 時刻表示用で追加
                 foreach ($attendance->breaks as $break) {
                     if ($break->break_in_at && $break->break_out_at) {
-                        $breakMinutes += Carbon::parse($break->break_in_at)->diffInMinutes(Carbon::parse($break->break_out_at));
+                        $breakIn = Carbon::parse($break->break_in_at)->format('H:i');
+                        $breakOut = Carbon::parse($break->break_out_at)->format('H:i');
+
+                        $breakTimes[] = $breakIn . '〜' . $breakOut;
+
+                        $breakMinutes += Carbon::parse($break->break_in_at)
+                            ->diffInMinutes(Carbon::parse($break->break_out_at));
                     }
                 }
+
                 $breakTotal = $this->minutesToHm($breakMinutes);
+
+                $breakTimesText = implode(' / ', $breakTimes);
 
                 // 勤務合計（出勤〜退勤の差 - 休憩）
                 if ($attendance->clock_in_at && $attendance->clock_out_at) {
@@ -232,6 +243,7 @@ class AttendanceController extends Controller
                 'clock_in' => $clockIn,
                 'clock_out' => $clockOut,
                 'break_total' => $breakTotal,
+                'break_times_text' => $breakTimesText,
                 'work_total' => $workTotal,
                 'detail_id' => $detailId,
             ];
@@ -286,24 +298,19 @@ class AttendanceController extends Controller
 
         $workDate = Carbon::parse($attendance->work_date);
 
-
-        // 元の値（勤怠）
         $baseClockIn  = $attendance->clock_in_at ? Carbon::parse($attendance->clock_in_at)->format('H:i') : '';
         $baseClockOut = $attendance->clock_out_at ? Carbon::parse($attendance->clock_out_at)->format('H:i') : '';
 
-        // 元の休憩（最大2枠の前提で今はOK）
+        // 元の休憩（回数分ぜんぶ）
         $baseBreaks = [];
-        foreach ($attendance->breaks->take(2) as $break) {
+        foreach ($attendance->breaks as $break) {
             $baseBreaks[] = [
                 'in'  => $break->break_in_at ? Carbon::parse($break->break_in_at)->format('H:i') : '',
                 'out' => $break->break_out_at ? Carbon::parse($break->break_out_at)->format('H:i') : '',
             ];
         }
-        while (count($baseBreaks) < 2) {
-            $baseBreaks[] = ['in' => '', 'out' => ''];
-        }
 
-        // ★表示用：承認待ちがあれば「申請内容」を優先（nullなら元の値にフォールバック）
+        // 表示する値を決定（承認待ちがあれば申請優先）
         if ($pendingRequest) {
             $clockIn = $pendingRequest->requested_clock_in_at
                 ? Carbon::parse($pendingRequest->requested_clock_in_at)->format('H:i')
@@ -313,21 +320,28 @@ class AttendanceController extends Controller
                 ? Carbon::parse($pendingRequest->requested_clock_out_at)->format('H:i')
                 : $baseClockOut;
 
+            // 休憩は「元の休憩」をベースに、申請分を break_no で上書き（足りなければ追加）
             $breaks = $baseBreaks;
-            foreach ([1, 2] as $no) {
-                $reqBreak = $pendingRequest->breaks->firstWhere('break_no', $no);
-                if ($reqBreak) {
-                    $breaks[$no - 1]['in'] = $reqBreak->requested_break_in_at
-                        ? Carbon::parse($reqBreak->requested_break_in_at)->format('H:i')
-                        : $breaks[$no - 1]['in'];
 
-                    $breaks[$no - 1]['out'] = $reqBreak->requested_break_out_at
-                        ? Carbon::parse($reqBreak->requested_break_out_at)->format('H:i')
-                        : $breaks[$no - 1]['out'];
+            foreach ($pendingRequest->breaks as $reqBreak) {
+                $idx = $reqBreak->break_no - 1;
+
+                while (count($breaks) <= $idx) {
+                    $breaks[] = ['in' => '', 'out' => ''];
+                }
+
+                if ($reqBreak->requested_break_in_at) {
+                    $breaks[$idx]['in'] = Carbon::parse($reqBreak->requested_break_in_at)->format('H:i');
+                }
+                if ($reqBreak->requested_break_out_at) {
+                    $breaks[$idx]['out'] = Carbon::parse($reqBreak->requested_break_out_at)->format('H:i');
                 }
             }
 
-            $note = !is_null($pendingRequest->requested_note) ? $pendingRequest->requested_note : ($attendance->note ?? '');
+            $note = !is_null($pendingRequest->requested_note)
+                ? $pendingRequest->requested_note
+                : ($attendance->note ?? '');
+
             $isPending = true;
         } else {
             $clockIn = $baseClockIn;
@@ -337,14 +351,15 @@ class AttendanceController extends Controller
             $isPending = false;
         }
 
+        // ★追加で1行（要件：休憩回数分 + 追加1行）
+        $breaks[] = ['in' => '', 'out' => ''];
+
         return view('attendance.detail', [
             'attendanceId' => $attendance->id,
             'userName' => $user->name,
             'isPending' => $isPending,
-
             'yearText' => $workDate->format('Y年'),
             'dateText' => $workDate->format('n月j日'),
-
             'clockIn' => $clockIn,
             'clockOut' => $clockOut,
             'breaks' => $breaks,
@@ -388,21 +403,21 @@ class AttendanceController extends Controller
                 'status' => 0, // 承認待ち
             ]);
 
-            $breakInputs = [
-                1 => ['in' => $validated['break1_in'] ?? null, 'out' => $validated['break1_out'] ?? null],
-                2 => ['in' => $validated['break2_in'] ?? null, 'out' => $validated['break2_out'] ?? null],
-            ];
+            $breaksInput = $validated['breaks'] ?? [];
 
-            foreach ($breakInputs as $breakNo => $times) {
-                if (empty($times['in']) && empty($times['out'])) {
+            foreach ($breaksInput as $i => $times) {
+                $in = $times['in'] ?? null;
+                $out = $times['out'] ?? null;
+
+                if (empty($in) && empty($out)) {
                     continue;
                 }
 
                 AttendanceCorrectionRequestBreak::create([
                     'attendance_correction_request_id' => $correction->id,
-                    'break_no' => $breakNo,
-                    'requested_break_in_at' => empty($times['in']) ? null : Carbon::parse($workDate . ' ' . $times['in']),
-                    'requested_break_out_at' => empty($times['out']) ? null : Carbon::parse($workDate . ' ' . $times['out']),
+                    'break_no' => $i + 1,
+                    'requested_break_in_at' => empty($in) ? null : Carbon::parse($workDate . ' ' . $in),
+                    'requested_break_out_at' => empty($out) ? null : Carbon::parse($workDate . ' ' . $out),
                 ]);
             }
         });

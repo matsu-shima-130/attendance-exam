@@ -24,6 +24,7 @@ class AdminLoginRequest extends FormRequest
         return [
             // FN016（管理者ログイン）未入力の場合
             'email.required' => 'メールアドレスを入力してください',
+            'email.email' => 'メールアドレス形式で入力してください',
             'password.required' => 'パスワードを入力してください',
         ];
     }

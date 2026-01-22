@@ -40,27 +40,18 @@
                         </div>
                     </div>
 
-                    <div class="detail-row">
-                        <div class="detail-label">休憩</div>
-                        <div class="detail-value">
-                            <div class="time-pair">
-                                <input class="time-input" type="text" value="{{ $breaks[0]['in'] }}" readonly>
-                                <span class="time-tilde">～</span>
-                                <input class="time-input" type="text" value="{{ $breaks[0]['out'] }}" readonly>
+                    @foreach ($breaks as $i => $break)
+                        <div class="detail-row">
+                            <div class="detail-label">休憩{{ $i === 0 ? '' : $i + 1 }}</div>
+                            <div class="detail-value">
+                                <div class="time-pair">
+                                    <input class="time-input" type="text" value="{{ $break['in'] }}" readonly>
+                                    <span class="time-tilde">～</span>
+                                    <input class="time-input" type="text" value="{{ $break['out'] }}" readonly>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="detail-row">
-                        <div class="detail-label">休憩2</div>
-                        <div class="detail-value">
-                            <div class="time-pair">
-                                <input class="time-input" type="text" value="{{ $breaks[1]['in'] }}" readonly>
-                                <span class="time-tilde">～</span>
-                                <input class="time-input" type="text" value="{{ $breaks[1]['out'] }}" readonly>
-                            </div>
-                        </div>
-                    </div>
+                    @endforeach
 
                     <div class="detail-row detail-row--note">
                         <div class="detail-label">備考</div>
@@ -111,45 +102,29 @@
                             </div>
                         </div>
 
-                        <div class="detail-row">
-                            <div class="detail-label">休憩</div>
-                            <div class="detail-value">
-                                <div class="time-pair">
-                                    <input class="time-input" type="text" name="break1_in"
-                                        value="{{ old('break1_in', $breaks[0]['in']) }}">
-                                    <span class="time-tilde">～</span>
-                                    <input class="time-input" type="text" name="break1_out"
-                                        value="{{ old('break1_out', $breaks[0]['out']) }}">
+                        @foreach ($breaks as $i => $break)
+                            <div class="detail-row">
+                                <div class="detail-label">休憩{{ $i === 0 ? '' : $i + 1 }}</div>
+                                <div class="detail-value">
+                                    <div class="time-pair">
+                                        <input class="time-input" type="text"
+                                            name="breaks[{{ $i }}][in]"
+                                            value="{{ old("breaks.$i.in", $break['in']) }}">
+                                        <span class="time-tilde">～</span>
+                                        <input class="time-input" type="text"
+                                            name="breaks[{{ $i }}][out]"
+                                            value="{{ old("breaks.$i.out", $break['out']) }}">
+                                    </div>
+
+                                    @error("breaks.$i.in")
+                                        <p class="detail-message">{{ $message }}</p>
+                                    @enderror
+                                    @error("breaks.$i.out")
+                                        <p class="detail-message">{{ $message }}</p>
+                                    @enderror
                                 </div>
-
-                                @error('break1_in')
-                                    <p class="detail-message">{{ $message }}</p>
-                                @enderror
-                                @error('break1_out')
-                                    <p class="detail-message">{{ $message }}</p>
-                                @enderror
                             </div>
-                        </div>
-
-                        <div class="detail-row">
-                            <div class="detail-label">休憩2</div>
-                            <div class="detail-value">
-                                <div class="time-pair">
-                                    <input class="time-input" type="text" name="break2_in"
-                                        value="{{ old('break2_in', $breaks[1]['in']) }}">
-                                    <span class="time-tilde">～</span>
-                                    <input class="time-input" type="text" name="break2_out"
-                                        value="{{ old('break2_out', $breaks[1]['out']) }}">
-                                </div>
-
-                                @error('break2_in')
-                                    <p class="detail-message">{{ $message }}</p>
-                                @enderror
-                                @error('break2_out')
-                                    <p class="detail-message">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
+                        @endforeach
 
                         <div class="detail-row detail-row--note">
                             <div class="detail-label">備考</div>

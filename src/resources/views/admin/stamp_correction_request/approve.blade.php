@@ -41,39 +41,50 @@
                                 <input class="time-input" type="text" name="requested_clock_out_at"
                                     value="{{ old('requested_clock_out_at', $clockOut) }}" {{ $isApproved ? 'readonly' : '' }}>
                             </div>
+
+                            @error('requested_clock_in_at')
+                                <p class="detail-message">{{ $message }}</p>
+                            @enderror
+                            @error('requested_clock_out_at')
+                                <p class="detail-message">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
-                    <div class="detail-row">
-                        <div class="detail-label">休憩</div>
-                        <div class="detail-value">
-                            <div class="time-pair">
-                                <input class="time-input" type="text" name="break1_in"
-                                    value="{{ old('break1_in', $breaks[0]['in']) }}" {{ $isApproved ? 'readonly' : '' }}>
-                                <span class="time-tilde">～</span>
-                                <input class="time-input" type="text" name="break1_out"
-                                    value="{{ old('break1_out', $breaks[0]['out']) }}" {{ $isApproved ? 'readonly' : '' }}>
-                            </div>
-                        </div>
-                    </div>
+                    @foreach ($breaks as $i => $break)
+                        <div class="detail-row">
+                            <div class="detail-label">休憩{{ $i === 0 ? '' : $i + 1 }}</div>
+                            <div class="detail-value">
+                                <div class="time-pair">
+                                    <input class="time-input" type="text"
+                                        name="breaks[{{ $i }}][in]"
+                                        value="{{ old("breaks.$i.in", $break['in']) }}"
+                                        {{ $isApproved ? 'readonly' : '' }}>
+                                    <span class="time-tilde">～</span>
+                                    <input class="time-input" type="text"
+                                        name="breaks[{{ $i }}][out]"
+                                        value="{{ old("breaks.$i.out", $break['out']) }}"
+                                        {{ $isApproved ? 'readonly' : '' }}>
+                                </div>
 
-                    <div class="detail-row">
-                        <div class="detail-label">休憩2</div>
-                        <div class="detail-value">
-                            <div class="time-pair">
-                                <input class="time-input" type="text" name="break2_in"
-                                    value="{{ old('break2_in', $breaks[1]['in']) }}" {{ $isApproved ? 'readonly' : '' }}>
-                                <span class="time-tilde">～</span>
-                                <input class="time-input" type="text" name="break2_out"
-                                    value="{{ old('break2_out', $breaks[1]['out']) }}" {{ $isApproved ? 'readonly' : '' }}>
+                                @error("breaks.$i.in")
+                                    <p class="detail-message">{{ $message }}</p>
+                                @enderror
+                                @error("breaks.$i.out")
+                                    <p class="detail-message">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
-                    </div>
+                    @endforeach
 
                     <div class="detail-row detail-row--note">
                         <div class="detail-label">備考</div>
                         <div class="detail-value">
                             <textarea class="note-textarea" name="requested_note" {{ $isApproved ? 'readonly' : '' }}>{{ old('requested_note', $note) }}</textarea>
+
+                            @error('requested_note')
+                                <p class="detail-message">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -82,21 +93,7 @@
                     @if ($isApproved)
                         <button class="detail-button detail-button--approved" type="button" disabled>承認済み</button>
                     @else
-                        <form method="POST"
-                            action="{{ route('admin.stamp_correction_request.approve.update', ['attendanceCorrectionRequest' => $requestId]) }}">
-                            @csrf
-
-                            {{-- 承認時に「申請内容」をそのまま送る（approveUpdateのvalidate対策） --}}
-                            <input type="hidden" name="requested_clock_in_at" value="{{ $clockIn }}">
-                            <input type="hidden" name="requested_clock_out_at" value="{{ $clockOut }}">
-                            <input type="hidden" name="break1_in" value="{{ $breaks[0]['in'] }}">
-                            <input type="hidden" name="break1_out" value="{{ $breaks[0]['out'] }}">
-                            <input type="hidden" name="break2_in" value="{{ $breaks[1]['in'] }}">
-                            <input type="hidden" name="break2_out" value="{{ $breaks[1]['out'] }}">
-                            <input type="hidden" name="requested_note" value="{{ $note }}">
-
-                            <button class="detail-button" type="submit">承認</button>
-                        </form>
+                        <button class="detail-button" type="submit">承認</button>
                     @endif
                 </div>
             </form>

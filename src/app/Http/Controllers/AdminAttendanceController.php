@@ -101,15 +101,15 @@ class AdminAttendanceController extends Controller
         $clockOut = $attendance->clock_out_at ? Carbon::parse($attendance->clock_out_at)->format('H:i') : '';
 
         $breaks = [];
-        foreach ($attendance->breaks->take(2) as $breakItem) {
+        foreach ($attendance->breaks as $breakItem) {
             $breaks[] = [
                 'in' => $breakItem->break_in_at ? Carbon::parse($breakItem->break_in_at)->format('H:i') : '',
                 'out' => $breakItem->break_out_at ? Carbon::parse($breakItem->break_out_at)->format('H:i') : '',
             ];
         }
-        while (count($breaks) < 2) {
-            $breaks[] = ['in' => '', 'out' => ''];
-        }
+
+        // ★追加で1行
+        $breaks[] = ['in' => '', 'out' => ''];
 
         return view('admin.attendance.show', [
             'attendanceId' => $attendance->id,
@@ -136,17 +136,33 @@ class AdminAttendanceController extends Controller
         $attendance->update([
             'clock_in_at' => Carbon::parse($workDate . ' ' . $validated['clock_in']),
             'clock_out_at' => Carbon::parse($workDate . ' ' . $validated['clock_out']),
-            'note' => $validated['note'] ?? null,
+            'note' => $validated['note'],
         ]);
 
-        $this->syncBreak($attendance, 1, $validated['break1_in'] ?? null, $validated['break1_out'] ?? null, $workDate);
-        $this->syncBreak($attendance, 2, $validated['break2_in'] ?? null, $validated['break2_out'] ?? null, $workDate);
+        $breaksInput = $validated['breaks'] ?? [];
+
+        // 入力された行を同期（空行は削除扱い）
+        foreach ($breaksInput as $index => $times) {
+            $breakNo = $index + 1;
+
+            $breakIn = $times['in'] ?? null;
+            $breakOut = $times['out'] ?? null;
+
+            $this->syncBreak($attendance, $breakNo, $breakIn, $breakOut, $workDate);
+        }
+
+        // もし「入力行が少なくて余った既存休憩」があれば消す（念のため）
+        $existingBreakCount = $attendance->breaks->count();
+        $inputBreakCount = count($breaksInput);
+
+        for ($breakNo = $inputBreakCount + 1; $breakNo <= $existingBreakCount; $breakNo++) {
+            $this->syncBreak($attendance, $breakNo, null, null, $workDate);
+        }
 
         return redirect()
             ->route('admin.attendance.show', ['id' => $attendance->id])
             ->with('just_updated', true);
-
-    }
+        }
 
     private function syncBreak(Attendance $attendance, int $breakNo, ?string $breakIn, ?string $breakOut, string $workDate): void
     {

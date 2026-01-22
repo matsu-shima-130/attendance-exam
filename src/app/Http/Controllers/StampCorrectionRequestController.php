@@ -124,15 +124,13 @@ class StampCorrectionRequestController extends Controller
         $baseClockIn  = $attendance->clock_in_at ? Carbon::parse($attendance->clock_in_at)->format('H:i') : '';
         $baseClockOut = $attendance->clock_out_at ? Carbon::parse($attendance->clock_out_at)->format('H:i') : '';
 
+        // 元の休憩（回数分ぜんぶ）
         $baseBreaks = [];
-        foreach ($attendance->breaks->take(2) as $breakRecord) {
+        foreach ($attendance->breaks as $breakRecord) {
             $baseBreaks[] = [
                 'in'  => $breakRecord->break_in_at ? Carbon::parse($breakRecord->break_in_at)->format('H:i') : '',
                 'out' => $breakRecord->break_out_at ? Carbon::parse($breakRecord->break_out_at)->format('H:i') : '',
             ];
-        }
-        while (count($baseBreaks) < 2) {
-            $baseBreaks[] = ['in' => '', 'out' => ''];
         }
 
         // 申請内容（nullなら元の値）
@@ -144,25 +142,31 @@ class StampCorrectionRequestController extends Controller
             ? Carbon::parse($attendanceCorrectionRequest->requested_clock_out_at)->format('H:i')
             : $baseClockOut;
 
-        $breaks = $baseBreaks;
-
+        // 申請休憩（break_no順）
         $requestBreaks = AttendanceCorrectionRequestBreak::where('attendance_correction_request_id', $attendanceCorrectionRequest->id)
             ->orderBy('break_no', 'asc')
-            ->get()
-            ->keyBy('break_no');
+            ->get();
 
-        foreach ([1, 2] as $breakNo) {
-            $requestBreak = $requestBreaks->get($breakNo);
-            if ($requestBreak) {
-                $breaks[$breakNo - 1]['in'] = $requestBreak->requested_break_in_at
-                    ? Carbon::parse($requestBreak->requested_break_in_at)->format('H:i')
-                    : $breaks[$breakNo - 1]['in'];
+        // 表示用 breaks：元をベースに、申請で上書き（足りなければ追加）
+        $breaks = $baseBreaks;
 
-                $breaks[$breakNo - 1]['out'] = $requestBreak->requested_break_out_at
-                    ? Carbon::parse($requestBreak->requested_break_out_at)->format('H:i')
-                    : $breaks[$breakNo - 1]['out'];
+        foreach ($requestBreaks as $reqBreak) {
+            $idx = $reqBreak->break_no - 1;
+
+            while (count($breaks) <= $idx) {
+                $breaks[] = ['in' => '', 'out' => ''];
+            }
+
+            if ($reqBreak->requested_break_in_at) {
+                $breaks[$idx]['in'] = Carbon::parse($reqBreak->requested_break_in_at)->format('H:i');
+            }
+            if ($reqBreak->requested_break_out_at) {
+                $breaks[$idx]['out'] = Carbon::parse($reqBreak->requested_break_out_at)->format('H:i');
             }
         }
+
+        // ★追加で1行（要件：休憩回数分 + 追加1行）
+        $breaks[] = ['in' => '', 'out' => ''];
 
         $note = !is_null($attendanceCorrectionRequest->requested_note)
             ? $attendanceCorrectionRequest->requested_note
@@ -198,13 +202,11 @@ class StampCorrectionRequestController extends Controller
         $validated = $request->validate([
             'requested_clock_in_at' => ['nullable', 'date_format:H:i'],
             'requested_clock_out_at' => ['nullable', 'date_format:H:i'],
-
-            'break1_in' => ['nullable', 'date_format:H:i'],
-            'break1_out' => ['nullable', 'date_format:H:i'],
-            'break2_in' => ['nullable', 'date_format:H:i'],
-            'break2_out' => ['nullable', 'date_format:H:i'],
-
             'requested_note' => ['nullable', 'string'],
+
+            'breaks' => ['nullable', 'array'],
+            'breaks.*.in' => ['nullable', 'date_format:H:i'],
+            'breaks.*.out' => ['nullable', 'date_format:H:i'],
         ]);
 
         $adminId = Auth::guard('admin')->id();
@@ -233,21 +235,24 @@ class StampCorrectionRequestController extends Controller
                 'note' => $validated['requested_note'] ?? $attendance->note,
             ]);
 
-            // Breaks（最大2枠想定）
-            $existingBreaks = $attendance->breaks->values(); // 0,1...
+            // Breaks
+            $existingBreaks = $attendance->breaks->values(); // 0,1,2...
 
-            $breakInputs = [
-                1 => ['in' => $validated['break1_in'] ?? null, 'out' => $validated['break1_out'] ?? null],
-                2 => ['in' => $validated['break2_in'] ?? null, 'out' => $validated['break2_out'] ?? null],
-            ];
+            $breaksInput = $validated['breaks'] ?? [];
 
-            foreach ($breakInputs as $breakNo => $times) {
-                if (empty($times['in']) && empty($times['out'])) {
+            foreach ($breaksInput as $i => $times) {
+                $in = $times['in'] ?? null;
+                $out = $times['out'] ?? null;
+
+                // 追加1行など “両方空” はスキップ
+                if (empty($in) && empty($out)) {
                     continue;
                 }
 
-                $breakInAt = empty($times['in']) ? null : Carbon::parse($workDate . ' ' . $times['in']);
-                $breakOutAt = empty($times['out']) ? null : Carbon::parse($workDate . ' ' . $times['out']);
+                $breakNo = $i + 1;
+
+                $breakInAt = empty($in) ? null : Carbon::parse($workDate . ' ' . $in);
+                $breakOutAt = empty($out) ? null : Carbon::parse($workDate . ' ' . $out);
 
                 $existingBreak = $existingBreaks->get($breakNo - 1);
 
@@ -264,7 +269,6 @@ class StampCorrectionRequestController extends Controller
                     ]);
                 }
 
-                // 申請Break側も「最終的に承認した内容」で更新しておく（管理者が編集して承認した場合のため）
                 AttendanceCorrectionRequestBreak::updateOrCreate(
                     [
                         'attendance_correction_request_id' => $attendanceCorrectionRequest->id,

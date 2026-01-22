@@ -12,7 +12,7 @@
     <div class="auth">
         <h1 class="auth__title">管理者ログイン</h1>
 
-        <form action="{{ url('/admin/login') }}" method="POST" class="auth__form">
+        <form action="{{ url('/admin/login') }}" method="POST" class="auth__form" novalidate>
             @csrf
 
             <div class="auth__group">
