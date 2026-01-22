@@ -78,7 +78,47 @@
    ```
    - 会員登録後、/email/verify に遷移し、MailHog の受信ボックスに届いたメールから認証リンクをクリックするとメール認証が完了します。
 
-7. テスト
+7. テスト用DBの作成
+   - テストでは`.env.testing` を利用して `attendance_test` データベースに接続します。
+   - 初回のみ、MySQL にテスト用DBを作成し、接続ユーザーに権限を付与してください。
+
+   **※ここからは一度 PHP コンテナを出て、ホスト（自分のPCのターミナル）で作業します。**
+
+   1. PHPコンテナから退出：
+      ```bash
+      exit
+      ```
+
+   2. MySQL の root パスワードを確認（docker-compose.yml の設定）
+      ```bash
+      docker compose exec mysql printenv | grep MYSQL
+      ```
+
+   3. MySQL に root でログイン
+      ```bash
+      docker compose exec mysql mysql -u root -proot
+      ```
+
+   4. テスト用DB作成 & 権限付与
+      ```bash
+      CREATE DATABASE IF NOT EXISTS attendance_test;
+      GRANT ALL PRIVILEGES ON attendance_test.* TO 'laravel_user'@'%';
+      FLUSH PRIVILEGES;
+      exit
+      ```
+
+   5. PHPコンテナに入る
+      ```bash
+      docker-compose exec php bash
+      ```
+
+   5. マイグレーション（testing 環境）
+      ```bash
+      php artisan config:clear
+      php artisan migrate --env=testing
+      ```
+
+8. テスト
    - PHPUnit による Feature テストを実装しています。
    ```bash
    php artisan test
